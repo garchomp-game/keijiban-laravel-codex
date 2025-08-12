@@ -17,6 +17,10 @@ return [
 
     'default' => env('CACHE_STORE', 'file'),
 
+    'ttl' => [
+        'threads_index' => (int) env('CACHE_TTL_THREADS', 60),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores

@@ -6,15 +6,29 @@ use App\Http\Requests\ThreadRequest;
 use App\Http\Resources\ThreadResource;
 use App\Models\Thread;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use App\Support\CacheKeys;
 
 class ThreadController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $threads = Thread::with('user')->latest()->get();
+        $page = (int) $request->query('page', 1);
+        $ttl = (int) config('cache.ttl.threads_index', 60);
+        $key = CacheKeys::threadsIndexKey($page);
+
+        $paginator = Cache::remember($key, now()->addSeconds($ttl), function () {
+            return Thread::with('user')->latest()->paginate(20);
+        });
+
         return response()->json([
-            'data' => ThreadResource::collection($threads),
-            'meta' => (object)[],
+            'data' => ThreadResource::collection($paginator->items()),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'total' => $paginator->total(),
+                'per_page' => $paginator->perPage(),
+            ],
             'error' => null,
         ]);
     }
@@ -25,6 +39,9 @@ class ThreadController extends Controller
             'user_id' => $request->user()->id,
             'title' => $request->string('title'),
         ]);
+
+        CacheKeys::bumpThreadsVersion();
+
         return response()->json([
             'data' => new ThreadResource($thread),
             'meta' => (object)[],
@@ -46,6 +63,9 @@ class ThreadController extends Controller
     {
         $this->authorize('update', $thread);
         $thread->update(['title' => $request->string('title')]);
+
+        CacheKeys::bumpThreadsVersion();
+
         return response()->json([
             'data' => new ThreadResource($thread),
             'meta' => (object)[],
@@ -57,6 +77,9 @@ class ThreadController extends Controller
     {
         $this->authorize('delete', $thread);
         $thread->delete();
+
+        CacheKeys::bumpThreadsVersion();
+
         return response()->noContent();
     }
 }

@@ -10,8 +10,14 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Providers\AppServiceProvider;
+use App\Providers\RouteServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders([
+        AppServiceProvider::class,
+        RouteServiceProvider::class,
+    ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',

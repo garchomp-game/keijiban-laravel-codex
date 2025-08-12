@@ -56,6 +56,11 @@ jobs:
           tools: composer
           coverage: none
 
+      - uses: actions/cache@v4
+        with:
+          path: backend-laravel/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend-laravel/composer.lock') }}
+
       - name: Install dependencies
         working-directory: backend-laravel
         run: composer install --no-interaction --prefer-dist
