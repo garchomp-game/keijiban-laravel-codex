@@ -18,15 +18,15 @@ test('user can register, login, fetch profile and logout', function () {
         'password' => 'password',
     ]);
     $login->assertNoContent();
-    $cookie = $login->cookies->get(session_name());
+    $cookie = $login->cookie(session_name());
 
-    $user = getJson('/api/user', [], [
-        'Cookie' => session_name().'='.$cookie->getValue(),
+    $user = getJson('/api/user', [
+        'Cookie' => session_name().'='.$cookie,
     ]);
     $user->assertOk()->assertJsonPath('data.email', 'test@example.com');
 
     $logout = postJson('/api/auth/logout', [], [
-        'Cookie' => session_name().'='.$cookie->getValue(),
+        'Cookie' => session_name().'='.$cookie,
     ]);
     $logout->assertNoContent();
 });

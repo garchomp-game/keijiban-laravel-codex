@@ -32,6 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
             SubstituteBindings::class,
         ]);
     })
