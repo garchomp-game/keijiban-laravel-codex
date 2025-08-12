@@ -17,9 +17,12 @@
 cd backend-laravel
 cp .env.example .env
 ./vendor/bin/sail up -d
-php artisan migrate
-php artisan test
+./vendor/bin/sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan test
 ```
+
+CI では Sail を使わず、ネイティブ PHP + Postgres サービスで高速にテストしています。
+Redis を無効化したい場合は `.env` で `CACHE_STORE=array` `SESSION_DRIVER=array` `QUEUE_CONNECTION=sync` に切り替えてください。
 
 ### Frontend
 ```bash

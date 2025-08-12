@@ -26,6 +26,12 @@ jobs:
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s --health-timeout=5s --health-retries=10
+      # redis:
+      #   image: redis:7
+      #   ports: ["6379:6379"]
+      #   options: >-
+      #     --health-cmd="redis-cli ping"
+      #     --health-interval=10s --health-timeout=5s --health-retries=10
 
     env:
       APP_ENV: testing
@@ -60,4 +66,4 @@ jobs:
 
       - name: Run tests
         working-directory: backend-laravel
-        run: php artisan test --parallel
+        run: php artisan test --parallel --exclude-group=redis
