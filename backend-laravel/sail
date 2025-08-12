@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+if [ -f vendor/bin/sail ]; then
+    bash vendor/bin/sail "$@"
+else
+    bash vendor/laravel/sail/bin/sail "$@"
+fi
