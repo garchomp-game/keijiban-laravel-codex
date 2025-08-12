@@ -9,3 +9,21 @@
 - CI: GitHub Actions（Secrets不要、サービスコンテナ使用）
 
 👉 まずは `docs/agent/AGENT_OVERVIEW.md` と `docs/agent/TASKS_BOOTSTRAP.md` を読んでください。
+
+## Usage
+
+### Backend
+```bash
+cd backend-laravel
+cp .env.example .env
+./vendor/bin/sail up -d
+php artisan migrate
+php artisan test
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
