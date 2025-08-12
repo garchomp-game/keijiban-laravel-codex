@@ -1,19 +1,21 @@
-# Agent Overview (Laravel + Next)
+# Agent Overview (This Repo = Source of Truth)
+
+## 役割
+あなた（エージェント）は、このリポジトリを読み、**本リポ直下**に必要なコード/構成を作成します。  
+外部リポやサブモジュールは使わず、**すべてこのリポに追加**してください。
+
+## 作成するディレクトリ（このリポ直下）
+- `backend-laravel/` … Laravel 11（SailでPostgres/Redis）
+- `frontend/` … Next.js 14+（App Router）
+- `.github/workflows/` … CI（Laravel/PHP & Postgres/Redis）
 
 ## 原則
-1. 設定より規約：Laravel 標準（Sanctum, Eloquent, Resource Controller, Request Validation）を優先。
-2. 変更は最小限コミット・小粒 PR。実装→テスト→CI 修正の順で段階化。
-3. 破壊的変更は TASKS_LARAVEL_MIGRATION.md の順序に従うこと。
-4. 秘密情報は使わない（fork PR 安全）。CI は Docker サービスで完結。
+1. 設定より規約（Laravel標準・Sanctum・Eloquent・FormRequest・Resource）。
+2. 小さなコミット＆段階的PR（ただし単一ブランチでも可）。差分を最小に。
+3. Secrets禁止。DB/RedisはDockerサービス（Sail or Actions services）で起動。
+4. OpenAPIに準拠し、実装とスキーマの乖離を出さない。
 
-## 作業モード
-- まず backend-laravel を新設し、Sail で pg/redis を有効化。
-- 認証は Sanctum SPA。Next 側は `credentials: 'include'` で Cookie を送信。
-- API は OpenAPI に準拠。E2E/統合テストは Pest で書く。
-
-## コード規約（抜粋）
-- 名前: Eloquent モデルは単数（User, Thread, Post, Reaction）。テーブルは複数形。
-- コントローラ: `php artisan make:controller ThreadController --api --model=Thread`
-- バリデーション: `FormRequest` を必須化。
-- レスポンス: JSON envelope `{ data, meta, error }` を標準化（CONVENTIONS.md）。
-- 例外: `App\Exceptions\Handler` で API 例外を JSON に統一。
+## 完了条件
+- `backend-laravel/` で `sail up -d` → `php artisan test` がグリーン。
+- Next から Cookie 認証で API を呼べる（Sanctum SPA）。
+- `.github/workflows/backend-laravel.yml` がCI成功。

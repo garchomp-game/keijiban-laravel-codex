@@ -3,6 +3,8 @@
 本プロジェクトは、バックエンドを Laravel に刷新し、Next.js と統合したリアルタイム掲示板を構築する。
 このドキュメントは **エージェント（VS Code Copilot / Sonnet / Codex）向け**の実装指針と仕事の分割を定義する。
 
+**重要**: このリポは仕様のみ。エージェントはこのリポ直下に `backend-laravel/` と `frontend/` を新規作成する。
+
 ## 目的
 - 既存 Node/Nest + Prisma で生じた CI/DB/ENV の複雑性を軽減し、Laravel の「規約優先」で再構築。
 - 認証は Laravel Sanctum（SPA モード）を第一候補。Next 側は Cookie ベースで連携。
@@ -16,13 +18,13 @@
 - CI: GitHub Actions（PHP 8.3 + Postgres + Redis）
 - API仕様: OpenAPI 3.1（docs/agent/api/openapi.yaml）
 
-## フォルダ構成（追加・変更分）
+## フォルダ構成（このリポ直下に作成）
 - backend-laravel/ … Laravel 11 アプリ（Sail）
-- frontend/ … 既存 Next アプリ（そのまま）
+- frontend/ … Next.js アプリ（App Router）
 - docs/
   - agent/
     - AGENT_OVERVIEW.md … エージェント向けのルール
-    - TASKS_LARAVEL_MIGRATION.md … 具体的なタスク列
+    - TASKS_BOOTSTRAP.md … 具体的なタスク列
     - CONVENTIONS.md … 命名規約・レスポンス標準
     - DB_SCHEMA.md … ER/テーブル・Eloquent 関係
     - CI_GUIDE.md … CI のやり方（Actions）

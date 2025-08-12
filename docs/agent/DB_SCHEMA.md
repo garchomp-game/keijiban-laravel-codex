@@ -1,17 +1,12 @@
-# DB Schema (Eloquent relations)
+# DB Schema
 
-## Tables
-- users(id, name, email, password, ...), unique(email)
+- users(id, name, email unique, password, ...)
 - threads(id, user_id, title, body, ...)
 - posts(id, thread_id, user_id, body, ...)
-- reactions(id, post_id, user_id, type)  // type: likeなど
+- reactions(id, post_id, user_id, type)
 
-## Relations
-- User hasMany Threads/Posts/Reactions
-- Thread belongsTo User; hasMany Posts
-- Post belongsTo Thread & User; hasMany Reactions
-- Reaction belongsTo Post & User
-
-## インデックス
-- posts(thread_id, created_at)
-- reactions(post_id, user_id, type) unique
+Relations:  
+User hasMany Threads/Posts/Reactions  
+Thread belongsTo User; hasMany Posts  
+Post belongsTo Thread & User; hasMany Reactions  
+Reaction belongsTo Post & User
