@@ -23,6 +23,10 @@ cp .env.example .env
 
 CI では Sail を使わず、ネイティブ PHP + Postgres サービスで高速にテストしています。
 Redis を無効化したい場合は `.env` で `CACHE_STORE=array` `SESSION_DRIVER=array` `QUEUE_CONNECTION=sync` に切り替えてください。
+CI は高速な `test` ジョブと、Redis サービスを起動して `--group=redis` のみ実行する `test-redis` ジョブに分かれます。
+
+Horizon を試す場合は `php artisan horizon` (Sailなら `./vendor/bin/sail artisan horizon`) を実行し、
+`HORIZON_ALLOW_DASHBOARD=true` の環境でダッシュボードを閲覧できます。
 
 ### Frontend
 ```bash

@@ -15,6 +15,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -26,13 +27,6 @@ jobs:
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s --health-timeout=5s --health-retries=10
-      # redis:
-      #   image: redis:7
-      #   ports: ["6379:6379"]
-      #   options: >-
-      #     --health-cmd="redis-cli ping"
-      #     --health-interval=10s --health-timeout=5s --health-retries=10
-
     env:
       APP_ENV: testing
       APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= # テスト用ダミー
@@ -71,4 +65,70 @@ jobs:
 
       - name: Run tests
         working-directory: backend-laravel
-        run: php artisan test --parallel --exclude-group=redis
+        run: php artisan test --parallel --exclude-group=redis --without-tty
+
+  test-redis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_DATABASE: app
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+      CACHE_STORE: redis
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_CACHE_DB: 1
+      REDIS_QUEUE_DB: 2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          coverage: none
+
+      - uses: actions/cache@v4
+        with:
+          path: backend-laravel/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend-laravel/composer.lock') }}
+
+      - name: Install dependencies
+        working-directory: backend-laravel
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run migrations
+        working-directory: backend-laravel
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Run tests
+        working-directory: backend-laravel
+        run: php artisan test --group=redis --without-tty
