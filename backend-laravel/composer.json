@@ -68,7 +68,7 @@
     ],
     "analyse": "phpstan analyse --memory-limit=1G",
     "lint": "pint --test",
-    "audit": "composer audit --no-interaction",
+    "audit:packages": "composer audit --no-interaction",
     "test:coverage": "php -d pcov.enabled=1 artisan test --coverage-clover storage/coverage/clover.xml --log-junit storage/test-junit.xml"
   },
   "extra": {

@@ -1,9 +1,9 @@
 <?php
 
+use App\Jobs\TouchCacheJob;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
-use App\Jobs\TouchCacheJob;
 
 test('redis is reachable and cache works', function () {
     if (config('cache.default') !== 'redis') {

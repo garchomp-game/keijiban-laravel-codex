@@ -1,4 +1,5 @@
 includes:
+  - phpstan-baseline.neon
   - vendor/nunomaduro/larastan/extension.neon
 parameters:
   paths:
@@ -7,3 +8,4 @@ parameters:
   level: 5
   ignoreErrors:
     - '#Property .+ might not be defined#'
+  reportUnmatchedIgnoredErrors: false

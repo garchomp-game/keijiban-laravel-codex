@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\Thread;
+use App\Models\User;
+use App\Support\CacheKeys;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use App\Support\CacheKeys;
-use App\Models\User;
-use App\Models\Thread;
 
 uses(RefreshDatabase::class);
 

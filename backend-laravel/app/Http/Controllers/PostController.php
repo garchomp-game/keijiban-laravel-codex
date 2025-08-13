@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
-use App\Models\Post;
 use App\Models\Thread;
 
 class PostController extends Controller
@@ -12,9 +11,10 @@ class PostController extends Controller
     public function index(Thread $thread)
     {
         $posts = $thread->posts()->with('user')->latest()->get();
+
         return response()->json([
             'data' => PostResource::collection($posts),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ]);
     }
@@ -25,9 +25,10 @@ class PostController extends Controller
             'user_id' => $request->user()->id,
             'body' => $request->string('body'),
         ]);
+
         return response()->json([
             'data' => new PostResource($post),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ], 201);
     }
