@@ -134,3 +134,88 @@ jobs:
       - name: Run tests
         working-directory: backend-laravel
         run: php artisan test --group=redis
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          coverage: pcov
+
+      - uses: actions/cache@v4
+        with:
+          path: backend-laravel/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend-laravel/composer.lock') }}
+
+      - name: Install deps
+        working-directory: backend-laravel
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Pint (lint)
+        working-directory: backend-laravel
+        run: composer lint
+
+      - name: Larastan (phpstan)
+        working-directory: backend-laravel
+        run: composer analyse
+
+      - name: Composer audit
+        working-directory: backend-laravel
+        run: |
+          composer audit --no-interaction || echo "Security audit found issues - review manually"
+
+      - uses: actions/setup-node@v4
+      - name: OpenAPI lint (docs/agent/api/openapi.yaml)
+        run: npx @redocly/cli@latest lint docs/agent/api/openapi.yaml
+
+
+      - name: Test with coverage (no parallel)
+        working-directory: backend-laravel
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: app
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          SESSION_DRIVER: array
+        run: |
+          # Wait for PostgreSQL to be ready
+          until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
+          php artisan migrate:fresh --seed --force
+          composer test:coverage
+
+      - name: Upload artifacts (coverage & junit)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-and-junit
+          path: |
+            backend-laravel/storage/coverage/clover.xml
+            backend-laravel/storage/test-junit.xml
+
+      - name: Summarize results (guarded)
+        working-directory: backend-laravel
+        run: |
+          echo "## Quality Summary" >> $GITHUB_STEP_SUMMARY
+          php -r 'if(file_exists("storage/test-junit.xml")){ $x=@simplexml_load_file("storage/test-junit.xml"); if($x){ $s=$x->testsuite; printf("- Tests: %d (failures: %d, errors: %d, skipped: %d)\n",(int)$s["tests"],(int)$s["failures"],(int)$s["errors"],(int)$s["skipped"]); }}' >> $GITHUB_STEP_SUMMARY
+          php -r 'if(file_exists("storage/coverage/clover.xml")){ $x=@simplexml_load_file("storage/coverage/clover.xml"); if($x){ $m=$x->project->metrics; $st=(int)$m["statements"]; $cs=(int)$m["coveredstatements"]; $p=$st?round($cs/$st*100,1):0; printf("- Coverage: %0.1f%% (%d/%d)\n",$p,$cs,$st); }}' >> $GITHUB_STEP_SUMMARY

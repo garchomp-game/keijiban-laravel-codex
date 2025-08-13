@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ThreadRequest;
 use App\Http\Resources\ThreadResource;
 use App\Models\Thread;
+use App\Support\CacheKeys;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Support\CacheKeys;
 
 class ThreadController extends Controller
 {
@@ -44,7 +44,7 @@ class ThreadController extends Controller
 
         return response()->json([
             'data' => new ThreadResource($thread),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ], 201);
     }
@@ -52,9 +52,10 @@ class ThreadController extends Controller
     public function show(Thread $thread)
     {
         $thread->load('user');
+
         return response()->json([
             'data' => new ThreadResource($thread),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ]);
     }
@@ -68,7 +69,7 @@ class ThreadController extends Controller
 
         return response()->json([
             'data' => new ThreadResource($thread),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ]);
     }

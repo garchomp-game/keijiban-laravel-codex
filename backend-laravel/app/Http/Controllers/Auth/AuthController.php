@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         return response()->json([
             'data' => new UserResource($user),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ], 201);
     }
@@ -33,7 +33,7 @@ class AuthController extends Controller
         if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'data' => null,
-                'meta' => (object)[],
+                'meta' => (object) [],
                 'error' => ['code' => 'AUTH-401', 'message' => 'Unauthorized', 'details' => null],
             ], 401);
         }
@@ -56,7 +56,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'data' => new UserResource($request->user()),
-            'meta' => (object)[],
+            'meta' => (object) [],
             'error' => null,
         ]);
     }

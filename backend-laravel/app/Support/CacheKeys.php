@@ -9,6 +9,7 @@ class CacheKeys
     public static function threadsIndexKey(int $page = 1): string
     {
         $v = Cache::get('threads:version', 1);
+
         return "threads:index:v{$v}:p{$page}";
     }
 
