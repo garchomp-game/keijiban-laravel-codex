@@ -1,0 +1,57 @@
+name: status-report
+on:
+  workflow_dispatch: {}
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          coverage: pcov
+      - name: Install deps
+        working-directory: backend-laravel
+        run: composer install --no-interaction --prefer-dist
+      - name: Prep DB
+        working-directory: backend-laravel
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: app
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+        run: php artisan migrate:fresh --seed --force
+      - name: Run tests (coverage)
+        working-directory: backend-laravel
+        run: composer test:coverage
+      - name: Dump routes
+        working-directory: backend-laravel
+        run: php artisan route:list > storage/routes.txt
+      - name: Gather TODOs
+        run: |
+          grep -RIn "TODO\|FIXME" backend-laravel || true
+          grep -RIn "TODO\|FIXME" backend-laravel > backend-laravel/storage/todos.txt || true
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-artifacts
+          path: |
+            backend-laravel/storage/coverage/clover.xml
+            backend-laravel/storage/test-junit.xml
+            backend-laravel/storage/routes.txt
+            backend-laravel/storage/todos.txt
+      - name: Write summary
+        working-directory: backend-laravel
+        run: |
+          echo "## Project Status" >> $GITHUB_STEP_SUMMARY
+          php -r '$x=simplexml_load_file("storage/test-junit.xml"); $s=$x->testsuite; printf("- Tests: %d (failures: %d, errors: %d, skipped: %d)\n", (int)$s["tests"], (int)$s["failures"], (int)$s["errors"], (int)$s["skipped"]);' >> $GITHUB_STEP_SUMMARY
+          php -r '$x=simplexml_load_file("storage/coverage/clover.xml"); $m=$x->project->metrics; $st=(int)$m["statements"]; $cs=(int)$m["coveredstatements"]; $p=$st?round($cs/$st*100,1):0; printf("- Coverage: %0.1f%% (%d/%d)\n", $p, $cs, $st);' >> $GITHUB_STEP_SUMMARY
+          echo -e "\n<details><summary>Routes (artisan route:list)</summary>\n\n\`\`\`\n$(cat storage/routes.txt)\n\`\`\`\n</details>" >> $GITHUB_STEP_SUMMARY
+          if [ -s storage/todos.txt ]; then
+            echo -e "\n<details><summary>TODO/FIXME</summary>\n\n\`\`\`\n$(cat storage/todos.txt)\n\`\`\`\n</details>" >> $GITHUB_STEP_SUMMARY
+          fi
