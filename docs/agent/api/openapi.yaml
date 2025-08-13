@@ -57,6 +57,21 @@ components:
           type: string
           format: date-time
       required: [id, body, user, thread_id, created_at, updated_at]
+    Reaction:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        user:
+          $ref: '#/components/schemas/User'
+        post_id: { type: integer }
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, type, user, post_id, created_at, updated_at]
     Error:
       type: object
       properties:
@@ -83,6 +98,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Post'
+        meta: { type: object }
+      required: [data, meta]
+    Paginated_Reaction:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reaction'
         meta: { type: object }
       required: [data, meta]
 paths:
@@ -265,16 +289,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Post'
+      post:
+        operationId: createPost
+        summary: Create post
+        responses:
+          '201':
+            description: created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Post'
+          '401':
+            description: unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '422':
+            description: validation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /posts/{id}/reactions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      security: []
+      operationId: listReactions
+      summary: List reactions
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_Reaction'
     post:
-      operationId: createPost
-      summary: Create post
+      operationId: createReaction
+      summary: Create reaction
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/Reaction'
         '401':
           description: unauthorized
           content:
@@ -283,6 +346,17 @@ paths:
                 $ref: '#/components/schemas/Error'
         '422':
           description: validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteReaction
+      summary: Delete my reaction
+      responses:
+        '204': { description: ok }
+        '401':
+          description: unauthorized
           content:
             application/json:
               schema:
