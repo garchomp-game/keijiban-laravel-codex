@@ -177,7 +177,8 @@ jobs:
 
       - name: Composer audit
         working-directory: backend-laravel
-        run: composer audit --no-interaction || true
+        run: |
+          composer audit --no-interaction || echo "Security audit found issues - review manually"
 
       - uses: actions/setup-node@v4
       - name: OpenAPI lint (docs/agent/api/openapi.yaml)
@@ -195,7 +196,12 @@ jobs:
           DB_DATABASE: app
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          SESSION_DRIVER: array
         run: |
+          # Wait for PostgreSQL to be ready
+          until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
           php artisan migrate:fresh --seed --force
           composer test:coverage
 
@@ -207,9 +213,9 @@ jobs:
             backend-laravel/storage/coverage/clover.xml
             backend-laravel/storage/test-junit.xml
 
-      - name: Summarize results
+      - name: Summarize results (guarded)
         working-directory: backend-laravel
         run: |
           echo "## Quality Summary" >> $GITHUB_STEP_SUMMARY
-          php -r '$x=simplexml_load_file("storage/test-junit.xml"); $s=$x->testsuite; printf("- Tests: %d (failures: %d, errors: %d, skipped: %d)\n", (int)$s["tests"], (int)$s["failures"], (int)$s["errors"], (int)$s["skipped"]);' >> $GITHUB_STEP_SUMMARY
-          php -r '$x=simplexml_load_file("storage/coverage/clover.xml"); $m=$x->project->metrics; $st=(int)$m["statements"]; $cs=(int)$m["coveredstatements"]; $p=$st?round($cs/$st*100,1):0; printf("- Coverage: %0.1f%% (%d/%d)\n", $p, $cs, $st);' >> $GITHUB_STEP_SUMMARY
+          php -r 'if(file_exists("storage/test-junit.xml")){ $x=@simplexml_load_file("storage/test-junit.xml"); if($x){ $s=$x->testsuite; printf("- Tests: %d (failures: %d, errors: %d, skipped: %d)\n",(int)$s["tests"],(int)$s["failures"],(int)$s["errors"],(int)$s["skipped"]); }}' >> $GITHUB_STEP_SUMMARY
+          php -r 'if(file_exists("storage/coverage/clover.xml")){ $x=@simplexml_load_file("storage/coverage/clover.xml"); if($x){ $m=$x->project->metrics; $st=(int)$m["statements"]; $cs=(int)$m["coveredstatements"]; $p=$st?round($cs/$st*100,1):0; printf("- Coverage: %0.1f%% (%d/%d)\n",$p,$cs,$st); }}' >> $GITHUB_STEP_SUMMARY

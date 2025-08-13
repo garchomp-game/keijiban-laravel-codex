@@ -4,6 +4,17 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -25,9 +36,23 @@ jobs:
           DB_DATABASE: app
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
-        run: php artisan migrate:fresh --seed --force
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
+          php artisan migrate:fresh --seed --force
       - name: Run tests (coverage)
         working-directory: backend-laravel
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: app
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          SESSION_DRIVER: array
         run: composer test:coverage
       - name: Dump routes
         working-directory: backend-laravel

@@ -4,6 +4,9 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\Thread
+ */
 class ThreadResource extends JsonResource
 {
     /** @return array<string,mixed> */

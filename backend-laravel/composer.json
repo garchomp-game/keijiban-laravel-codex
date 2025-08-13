@@ -69,7 +69,7 @@
     "analyse": "phpstan analyse --memory-limit=1G",
     "lint": "pint --test",
     "audit:packages": "composer audit --no-interaction",
-    "test:coverage": "php -d pcov.enabled=1 artisan test --coverage-clover storage/coverage/clover.xml --log-junit storage/test-junit.xml"
+    "test:coverage": "mkdir -p storage/coverage storage/test-junit && php -d pcov.enabled=1 artisan test --coverage-clover storage/coverage/clover.xml --log-junit storage/test-junit.xml"
   },
   "extra": {
     "laravel": {

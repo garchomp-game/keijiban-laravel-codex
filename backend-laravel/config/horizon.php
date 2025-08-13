@@ -3,6 +3,8 @@
 use Illuminate\Support\Str;
 
 return [
+    // Dashboard gate toggle (AuthServiceProvider から参照)
+    'allow_dashboard' => (bool) env('HORIZON_ALLOW_DASHBOARD', false),
 
     /*
     |--------------------------------------------------------------------------

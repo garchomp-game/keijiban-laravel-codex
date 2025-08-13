@@ -22,7 +22,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('viewHorizon', function ($user = null) {
-            return (bool) env('HORIZON_ALLOW_DASHBOARD', false);
+            return (bool) config('horizon.allow_dashboard', false);
         });
     }
 }
