@@ -1,0 +1,7 @@
+
+Warning: require(/workspace/keijiban-laravel-codex/backend-laravel/vendor/autoload.php): Failed to open stream: No such file or directory in /workspace/keijiban-laravel-codex/backend-laravel/artisan on line 10
+
+Fatal error: Uncaught Error: Failed opening required '/workspace/keijiban-laravel-codex/backend-laravel/vendor/autoload.php' (include_path='.:/root/.local/share/mise/installs/php/8.4.11/lib/php') in /workspace/keijiban-laravel-codex/backend-laravel/artisan:10
+Stack trace:
+#0 {main}
+  thrown in /workspace/keijiban-laravel-codex/backend-laravel/artisan on line 10

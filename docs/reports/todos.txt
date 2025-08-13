@@ -1,0 +1,4 @@
+../.github/workflows/status-report.yml:60:      - name: Gather TODOs
+../.github/workflows/status-report.yml:62:          grep -RIn "TODO\|FIXME" backend-laravel || true
+../.github/workflows/status-report.yml:63:          grep -RIn "TODO\|FIXME" backend-laravel > backend-laravel/storage/todos.txt || true
+../.github/workflows/status-report.yml:81:            echo -e "\n<details><summary>TODO/FIXME</summary>\n\n\`\`\`\n$(cat storage/todos.txt)\n\`\`\`\n</details>" >> $GITHUB_STEP_SUMMARY
