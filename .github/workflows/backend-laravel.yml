@@ -65,7 +65,7 @@ jobs:
 
       - name: Run tests
         working-directory: backend-laravel
-        run: php artisan test --parallel --exclude-group=redis --without-tty
+        run: php artisan test --parallel --exclude-group=redis
 
   test-redis:
     runs-on: ubuntu-latest
@@ -131,4 +131,4 @@ jobs:
 
       - name: Run tests
         working-directory: backend-laravel
-        run: php artisan test --group=redis --without-tty
+        run: php artisan test --group=redis
