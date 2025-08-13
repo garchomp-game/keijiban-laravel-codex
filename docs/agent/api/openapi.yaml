@@ -14,6 +14,80 @@ components:
       type: apiKey
       in: cookie
       name: XSRF-TOKEN
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, name, email, created_at, updated_at]
+    Thread:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        user:
+          $ref: '#/components/schemas/User'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, title, body, user, created_at, updated_at]
+    Post:
+      type: object
+      properties:
+        id: { type: integer }
+        body: { type: string }
+        user:
+          $ref: '#/components/schemas/User'
+        thread_id: { type: integer }
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, body, user, thread_id, created_at, updated_at]
+    Error:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+        errors:
+          oneOf:
+            - type: object
+            - type: 'null'
+      required: [code, message]
+    Paginated_Thread:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
+        links: { type: object }
+        meta: { type: object }
+      required: [data, links, meta]
+    Paginated_Post:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        links: { type: object }
+        meta: { type: object }
+      required: [data, links, meta]
 paths:
   /auth/register:
     post:
@@ -21,8 +95,18 @@ paths:
       security: []
       summary: Register
       responses:
-        '201': { description: created }
-        '422': { description: validation }
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /auth/login:
     post:
       operationId: authLogin
@@ -30,35 +114,75 @@ paths:
       summary: Login (sets cookie)
       responses:
         '204': { description: ok }
-        '401': { description: unauthorized }
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /auth/logout:
     post:
       operationId: authLogout
       summary: Logout
       responses:
         '204': { description: ok }
-        '401': { description: unauthorized }
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /user:
     get:
       operationId: getCurrentUser
       summary: Current user
       responses:
-        '200': { description: ok }
-        '401': { description: unauthorized }
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /threads:
     get:
       security: []
       operationId: listThreads
       summary: List threads
       responses:
-        '200': { description: ok }
-        '401': { description: unauthorized }
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_Thread'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: createThread
       summary: Create thread
       responses:
-        '201': { description: created }
-        '401': { description: unauthorized }
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /threads/{id}:
     parameters:
       - name: id
@@ -70,22 +194,63 @@ paths:
       operationId: getThread
       summary: Get thread
       responses:
-        '200': { description: ok }
-        '404': { description: not found }
-        '401': { description: unauthorized }
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
       operationId: updateThread
       summary: Update (owner only)
       responses:
-        '200': { description: ok }
-        '403': { description: forbidden }
-        '401': { description: unauthorized }
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       operationId: deleteThread
       summary: Delete (owner only)
       responses:
         '204': { description: ok }
-        '401': { description: unauthorized }
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /threads/{id}/posts:
     parameters:
       - name: id
@@ -97,11 +262,37 @@ paths:
       operationId: listPosts
       summary: List posts
       responses:
-        '200': { description: ok }
-        '401': { description: unauthorized }
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_Post'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: createPost
       summary: Create post
       responses:
-        '201': { description: created }
-        '401': { description: unauthorized }
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
