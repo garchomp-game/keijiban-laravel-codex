@@ -49,6 +49,7 @@ jobs:
           php-version: '8.3'
           tools: composer
           coverage: none
+          extensions: pdo_pgsql, pcntl
 
       - uses: actions/cache@v4
         with:
@@ -99,7 +100,7 @@ jobs:
       CACHE_STORE: redis
       SESSION_DRIVER: array
       QUEUE_CONNECTION: redis
-      REDIS_CLIENT: phpredis
+      REDIS_CLIENT: predis
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       REDIS_DB: 0
@@ -115,6 +116,7 @@ jobs:
           php-version: '8.3'
           tools: composer
           coverage: none
+          extensions: pdo_pgsql, pcntl
 
       - uses: actions/cache@v4
         with:

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
 
 Horizon::auth(function ($request) {
-    return Gate::allows('viewHorizon', [$request->user()]);
+    return Gate::forUser($request->user())->allows('viewHorizon');
 });
 
 Route::get('/', function () {

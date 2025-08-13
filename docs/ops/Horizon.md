@@ -14,7 +14,7 @@ Laravel Sail を使う場合は:
 ./vendor/bin/sail artisan horizon
 ```
 
-`HORIZON_ALLOW_DASHBOARD=true` の環境でのみダッシュボードにアクセスできます。
+デフォルトではダッシュボードは無効です。ローカル開発時に確認する場合は `HORIZON_ALLOW_DASHBOARD=true` を設定してください。
 
 ## 主要設定
 

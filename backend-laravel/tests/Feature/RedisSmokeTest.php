@@ -12,7 +12,7 @@ test('redis is reachable and cache works', function () {
     Cache::put('ci:redis', 'ok', 10);
     expect(Cache::get('ci:redis'))->toBe('ok');
 
-    expect(Redis::connection()->ping())->toBe('PONG');
+    expect((string) Redis::connection()->ping())->toBe('PONG');
 })->group('redis');
 
 test('redis queue processes a job once', function () {
