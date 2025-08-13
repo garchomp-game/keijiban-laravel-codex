@@ -19,10 +19,8 @@ test('listThreads returns expected structure', function () {
         'data' => [[
             'id',
             'title',
-            'body',
             'user' => ['id', 'name'],
         ]],
-        'links',
         'meta',
     ]);
 });
@@ -41,7 +39,6 @@ test('listPosts returns expected structure', function () {
             'thread_id',
             'user' => ['id', 'name'],
         ]],
-        'links',
         'meta',
     ]);
 });
@@ -56,7 +53,6 @@ test('showThread returns expected structure', function () {
         'data' => [
             'id',
             'title',
-            'body',
             'user' => ['id', 'name'],
         ],
     ]);

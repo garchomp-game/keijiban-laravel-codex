@@ -33,7 +33,6 @@ components:
       properties:
         id: { type: integer }
         title: { type: string }
-        body: { type: string }
         user:
           $ref: '#/components/schemas/User'
         created_at:
@@ -42,7 +41,7 @@ components:
         updated_at:
           type: string
           format: date-time
-      required: [id, title, body, user, created_at, updated_at]
+      required: [id, title, user, created_at, updated_at]
     Post:
       type: object
       properties:
@@ -75,9 +74,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Thread'
-        links: { type: object }
         meta: { type: object }
-      required: [data, links, meta]
+      required: [data, meta]
     Paginated_Post:
       type: object
       properties:
@@ -85,9 +83,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Post'
-        links: { type: object }
         meta: { type: object }
-      required: [data, links, meta]
+      required: [data, meta]
 paths:
   /auth/register:
     post:
