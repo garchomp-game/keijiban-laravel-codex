@@ -6,7 +6,13 @@
 `CACHE_STORE=redis` `SESSION_DRIVER=redis` が既定 ON です。キューは現状 `sync`
 のままで、将来 `QUEUE_CONNECTION=redis` に切り替えるだけで利用できます。
 
-CI や Redis を使わない環境では、以下を設定するとネイティブ PHP のみで高速に動作します。
+CI は `array/sync/array` で動かす高速ジョブ `test` と、Redis サービスを起動して
+`--group=redis` だけ実行する `test-redis` の2ジョブ構成です。`test-redis` を利用する際は次のいずれかを選択してください。
+
+- PHP の `redis` 拡張をインストールして `REDIS_CLIENT=phpredis`
+- `composer require predis/predis` を実行して `REDIS_CLIENT=predis`
+
+Redis を使わない環境では、以下を設定するとネイティブ PHP のみで高速に動作します。
 
 ```env
 CACHE_STORE=array
