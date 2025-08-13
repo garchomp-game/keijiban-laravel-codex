@@ -19,6 +19,7 @@ return [
 
     'ttl' => [
         'threads_index' => (int) env('CACHE_TTL_THREADS', 60),
+        'posts_index' => (int) env('CACHE_TTL_POSTS_INDEX', 60),
     ],
 
     /*
