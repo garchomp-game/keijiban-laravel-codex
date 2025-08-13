@@ -52,6 +52,7 @@ class PostController extends Controller
 
     public function update(PostRequest $request, Thread $thread, Post $post)
     {
+        $this->authorize('update', $post);
         $post->update(['body' => $request->string('body')]);
 
         CacheKeys::bumpPostsVersion($thread->id);
@@ -65,6 +66,7 @@ class PostController extends Controller
 
     public function destroy(Thread $thread, Post $post)
     {
+        $this->authorize('delete', $post);
         $post->delete();
 
         CacheKeys::bumpPostsVersion($thread->id);

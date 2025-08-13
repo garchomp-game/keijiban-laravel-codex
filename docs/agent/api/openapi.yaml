@@ -158,12 +158,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Thread'
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     post:
       operationId: createThread
       summary: Create thread
@@ -176,6 +170,12 @@ paths:
                 $ref: '#/components/schemas/Thread'
         '401':
           description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: validation
           content:
             application/json:
               schema:
@@ -199,12 +199,6 @@ paths:
                 $ref: '#/components/schemas/Thread'
         '404':
           description: not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: unauthorized
           content:
             application/json:
               schema:
@@ -242,6 +236,12 @@ paths:
       summary: Delete (owner only)
       responses:
         '204': { description: ok }
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: unauthorized
           content:
@@ -265,12 +265,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Post'
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     post:
       operationId: createPost
       summary: Create post
