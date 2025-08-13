@@ -47,6 +47,7 @@ paths:
         '401': { description: unauthorized }
   /threads:
     get:
+      security: []
       operationId: listThreads
       summary: List threads
       responses:
@@ -65,6 +66,7 @@ paths:
         required: true
         schema: { type: integer }
     get:
+      security: []
       operationId: getThread
       summary: Get thread
       responses:
@@ -91,6 +93,7 @@ paths:
         required: true
         schema: { type: integer }
     get:
+      security: []
       operationId: listPosts
       summary: List posts
       responses:
