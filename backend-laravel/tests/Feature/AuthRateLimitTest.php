@@ -24,4 +24,3 @@ test('login is rate limited', function () {
         'password' => 'invalid',
     ])->assertStatus(429);
 });
-
