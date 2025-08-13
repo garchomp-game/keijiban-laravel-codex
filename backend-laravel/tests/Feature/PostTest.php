@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,8 +28,7 @@ test('user can create posts for thread', function () {
 test('user can update a post', function () {
     $user = User::factory()->create();
     $thread = Thread::factory()->for($user)->create();
-    $post = $thread->posts()->create([
-        'user_id' => $user->id,
+    $post = Post::factory()->for($thread)->for($user)->create([
         'body' => 'Hello',
     ]);
     actingAs($user);
@@ -40,8 +40,7 @@ test('user can update a post', function () {
 test('user can delete a post', function () {
     $user = User::factory()->create();
     $thread = Thread::factory()->for($user)->create();
-    $post = $thread->posts()->create([
-        'user_id' => $user->id,
+    $post = Post::factory()->for($thread)->for($user)->create([
         'body' => 'Hello',
     ]);
     actingAs($user);
