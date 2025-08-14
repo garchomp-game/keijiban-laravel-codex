@@ -194,11 +194,11 @@ jobs:
 
       - name: Pint (lint)
         working-directory: backend-laravel
-        run: composer lint
+        run: ./vendor/bin/pint --test
 
       - name: Larastan (phpstan)
         working-directory: backend-laravel
-        run: composer analyse
+        run: ./vendor/bin/phpstan analyse --memory-limit=1G
 
       - name: Composer audit
         working-directory: backend-laravel
