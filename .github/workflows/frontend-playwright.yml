@@ -1,0 +1,98 @@
+name: frontend-playwright
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - 'backend-laravel/**'
+      - '.github/workflows/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - 'backend-laravel/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_DATABASE: app
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: cookie
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          coverage: none
+          extensions: pdo_pgsql
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/cache@v4
+        with:
+          path: backend-laravel/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend-laravel/composer.lock') }}
+
+      - uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install backend dependencies
+        working-directory: backend-laravel
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Run migrations
+        working-directory: backend-laravel
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Start backend server
+        working-directory: backend-laravel
+        run: php artisan serve --host=127.0.0.1 --port=8000 &
+
+      - name: Wait for backend
+        run: until curl -sf http://127.0.0.1:8000 >/dev/null; do sleep 1; done
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        env:
+          API_BASE_URL: http://127.0.0.1:8000/api
+          CSRF_ENDPOINT: http://127.0.0.1:8000/sanctum/csrf-cookie
+        run: npm run test:e2e
