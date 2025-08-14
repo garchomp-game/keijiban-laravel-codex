@@ -4,8 +4,9 @@ info:
   version: 0.1.0
   license:
     name: MIT
+    url: https://opensource.org/license/mit/
 servers:
-  - url: http://localhost/api
+  - url: https://api.keijiban.com/api
 security:
   - cookieAuth: []
 components:
@@ -182,6 +183,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Thread'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: createThread
       summary: Create thread
@@ -289,28 +296,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Post'
-      post:
-        operationId: createPost
-        summary: Create post
-        responses:
-          '201':
-            description: created
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Post'
-          '401':
-            description: unauthorized
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '422':
-            description: validation
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createPost
+      summary: Create post
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /posts/{id}/reactions:
     parameters:
       - name: id
@@ -328,6 +341,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Reaction'
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: createReaction
       summary: Create reaction
