@@ -50,12 +50,12 @@ class PostController extends Controller
         ], 201);
     }
 
-    public function update(PostRequest $request, Thread $thread, Post $post)
+    public function update(PostRequest $request, Post $post)
     {
         $this->authorize('update', $post);
         $post->update(['body' => $request->string('body')]);
 
-        CacheKeys::bumpPostsVersion($thread->id);
+        CacheKeys::bumpPostsVersion($post->thread_id);
 
         return response()->json([
             'data' => new PostResource($post),
@@ -64,12 +64,13 @@ class PostController extends Controller
         ]);
     }
 
-    public function destroy(Thread $thread, Post $post)
+    public function destroy(Post $post)
     {
         $this->authorize('delete', $post);
+        $threadId = $post->thread_id;
         $post->delete();
 
-        CacheKeys::bumpPostsVersion($thread->id);
+        CacheKeys::bumpPostsVersion($threadId);
 
         return response()->noContent();
     }
