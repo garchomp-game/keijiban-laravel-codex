@@ -19,4 +19,9 @@ Route::delete('/threads/{thread}', [ThreadController::class, 'destroy'])->middle
 
 Route::get('/threads/{thread}/posts', [PostController::class, 'index']);
 Route::post('/threads/{thread}/posts', [PostController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/posts/{post}', [PostController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/posts/{post}', [PostController::class, 'destroy'])->middleware('auth:sanctum');
+
+Route::get('/posts/{post}/reactions', [ReactionController::class, 'index']);
 Route::post('/posts/{post}/reactions', [ReactionController::class, 'store'])->middleware('auth:sanctum');
+Route::delete('/posts/{post}/reactions', [ReactionController::class, 'destroy'])->middleware('auth:sanctum');

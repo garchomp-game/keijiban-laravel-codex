@@ -9,7 +9,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class ReactionResource extends JsonResource
 {
-    /** @return array<string,mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray($request): array
     {
         return [
