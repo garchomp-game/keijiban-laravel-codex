@@ -1,5 +1,27 @@
-export async function api(path: string, init: RequestInit = {}) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
+import createClient from 'openapi-fetch';
+import type { paths } from './api-types';
+
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
+const csrfEndpoint = process.env.NEXT_PUBLIC_CSRF_ENDPOINT!;
+
+export const api = createClient<paths>({
+  baseUrl,
+  fetch: async (input: RequestInfo, init: RequestInit = {}) => {
+    const method = (init.method ?? 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      await fetch(csrfEndpoint, { credentials: 'include' });
+    }
+    return fetch(input, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
+      ...init,
+    });
+  },
+});
+
+// Legacy API functions for backward compatibility
+export async function legacyApi(path: string, init: RequestInit = {}) {
+  const res = await fetch(`${baseUrl}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
     ...init,
@@ -12,13 +34,18 @@ export async function api(path: string, init: RequestInit = {}) {
 }
 
 export async function login(email: string, password: string) {
-  await fetch(process.env.NEXT_PUBLIC_CSRF_ENDPOINT!, { credentials: 'include' });
-  return api('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
+  await fetch(csrfEndpoint, { credentials: 'include' });
+  const { error } = await api.POST('/auth/login', {
+    body: { email, password },
   });
+  if (error) {
+    throw new Error(error.message || 'Login failed');
+  }
 }
 
 export async function logout() {
-  return api('/auth/logout', { method: 'POST' });
+  const { error } = await api.POST('/auth/logout', {});
+  if (error) {
+    throw new Error(error.message || 'Logout failed');
+  }
 }
