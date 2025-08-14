@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { api } from '../../lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -7,12 +8,9 @@ export default function LoginPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(process.env.NEXT_PUBLIC_CSRF_ENDPOINT!, { credentials: 'include' });
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    await api.POST('/auth/login', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: { email, password } as any,
     });
     window.location.href = '/';
   };

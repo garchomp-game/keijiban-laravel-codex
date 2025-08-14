@@ -1,13 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import type { components } from '../lib/api-types';
 
-type Thread = { id: number; title: string };
+type Thread = components['schemas']['Thread'];
 
 export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([]);
   useEffect(() => {
-    api('/threads').then((r) => setThreads(r.data)).catch(() => {});
+    api.GET('/threads').then((r) => {
+      if (r.data) setThreads(r.data.data);
+    });
   }, []);
   return (
     <div>
