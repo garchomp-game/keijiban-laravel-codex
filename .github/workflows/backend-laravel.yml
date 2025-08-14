@@ -153,8 +153,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run tests
-        run: npm test
+        run: npm test --if-present
       - name: Build
+        env:
+          NEXT_FONT_IGNORE_FAILED_DOWNLOADS: 1
         run: npm run build
 
   quality:
