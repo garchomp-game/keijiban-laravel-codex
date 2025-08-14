@@ -19,3 +19,33 @@ export const api = createClient<paths>({
   },
 });
 
+// Legacy API functions for backward compatibility
+export async function legacyApi(path: string, init: RequestInit = {}) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
+    ...init,
+  });
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message || 'API error');
+  }
+  return res.json();
+}
+
+export async function login(email: string, password: string) {
+  await fetch(csrfEndpoint, { credentials: 'include' });
+  const { error } = await api.POST('/auth/login', {
+    body: { email, password },
+  });
+  if (error) {
+    throw new Error(error.message || 'Login failed');
+  }
+}
+
+export async function logout() {
+  const { error } = await api.POST('/auth/logout', {});
+  if (error) {
+    throw new Error(error.message || 'Logout failed');
+  }
+}
