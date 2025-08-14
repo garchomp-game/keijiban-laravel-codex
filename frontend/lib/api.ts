@@ -36,7 +36,10 @@ export async function legacyApi(path: string, init: RequestInit = {}) {
 export async function login(email: string, password: string) {
   await fetch(csrfEndpoint, { credentials: 'include' });
   const { error } = await api.POST('/auth/login', {
-    body: { email, password },
+    body: {
+      email,
+      password,
+    },
   });
   if (error) {
     throw new Error(error.message || 'Login failed');

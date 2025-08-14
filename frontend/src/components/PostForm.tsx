@@ -1,22 +1,32 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import type { Post } from './PostItem';
+import type { components } from '@/lib/api-types';
 
 type PostFormProps = {
   threadId: number;
-  onCreated?: (post: Post) => void;
+  onCreated?: (post: components['schemas']['Post'] & { reactions?: Record<string, number>; myReaction?: string | null }) => void;
 };
 
 export default function PostForm({ threadId, onCreated }: PostFormProps) {
   const [body, setBody] = useState('');
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await api(`/threads/${threadId}/posts`, {
-      method: 'POST',
-      body: JSON.stringify({ body }),
+    const { data, error } = await api.POST('/threads/{id}/posts', {
+      params: {
+        path: {
+          id: threadId,
+        },
+      },
+      body: {
+        body,
+      },
     });
+    if (error) {
+      console.error('Failed to create post:', error);
+      return;
+    }
     setBody('');
-    onCreated?.(res.data);
+    onCreated?.({ ...data, reactions: {}, myReaction: null });
   };
 
   return (
