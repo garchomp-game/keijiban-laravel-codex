@@ -1,22 +1,11 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import type { components } from '@/lib/api-types';
 
-interface User {
-  id: number;
-  name: string;
-}
-
-interface Thread {
-  id: number;
-  title: string;
-}
-
-interface Post {
-  id: number;
-  body: string;
-  user: User;
-}
+type User = components['schemas']['User'];
+type Thread = components['schemas']['Thread'];
+type Post = components['schemas']['Post'];
 
 export default function ThreadPage() {
   const router = useRouter();
@@ -34,13 +23,13 @@ export default function ThreadPage() {
 
     setLoading(true);
     Promise.all([
-      api(`/threads/${threadId}`),
-      api(`/threads/${threadId}/posts`),
-      api('/user').catch(() => null),
+      api.GET('/threads/{id}', { params: { path: { id: parseInt(threadId) } } }),
+      api.GET('/threads/{id}/posts', { params: { path: { id: parseInt(threadId) } } }),
+      api.GET('/user').catch(() => null),
     ])
       .then(([threadRes, postsRes, userRes]) => {
-        setThread(threadRes.data);
-        setPosts(postsRes.data);
+        if (threadRes.data) setThread(threadRes.data);
+        if (postsRes.data?.data) setPosts(postsRes.data.data);
         if (userRes?.data) setCurrentUser(userRes.data);
         setLoading(false);
       })
@@ -54,9 +43,9 @@ export default function ThreadPage() {
     const body = prompt('Edit post', post.body);
     if (!body) return;
     try {
-      await api(`/threads/${thread?.id}/posts/${post.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ body }),
+      await api.PUT('/posts/{id}', {
+        params: { path: { id: post.id } },
+        body: { body }
       });
       setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, body } : p)));
     } catch {
@@ -67,7 +56,9 @@ export default function ThreadPage() {
   const deletePost = async (post: Post) => {
     if (!confirm('Delete this post?')) return;
     try {
-      await api(`/threads/${thread?.id}/posts/${post.id}`, { method: 'DELETE' });
+      await api.DELETE('/posts/{id}', {
+        params: { path: { id: post.id } }
+      });
       setPosts((prev) => prev.filter((p) => p.id !== post.id));
     } catch {
       alert('Failed to delete post');

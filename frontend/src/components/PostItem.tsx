@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import type { components } from '@/lib/api-types';
 
 export type ReactionCounts = Record<string, number>;
 
-export type Post = {
-  id: number;
-  body: string;
+export type Post = components['schemas']['Post'] & {
   reactions: ReactionCounts;
   myReaction?: string | null;
 };
@@ -19,10 +18,36 @@ export default function PostItem({ post }: PostItemProps) {
   const [myReaction, setMyReaction] = useState<string | null>(post.myReaction || null);
 
   const react = async (type: string) => {
-    await api(`/posts/${post.id}/reactions`, {
-      method: 'POST',
-      body: JSON.stringify({ type }),
-    });
+    if (myReaction === type) {
+      // Delete reaction
+      const { error } = await api.DELETE('/posts/{id}/reactions', {
+        params: {
+          path: {
+            id: post.id,
+          },
+        },
+      });
+      if (error) {
+        console.error('Failed to delete reaction:', error);
+        return;
+      }
+    } else {
+      // Create or update reaction
+      const { error } = await api.POST('/posts/{id}/reactions', {
+        params: {
+          path: {
+            id: post.id,
+          },
+        },
+        body: {
+          type,
+        },
+      });
+      if (error) {
+        console.error('Failed to create reaction:', error);
+        return;
+      }
+    }
 
     setReactions((prev) => {
       const next = { ...prev };
