@@ -25,8 +25,12 @@ export default function PostForm({ threadId, onCreated }: PostFormProps) {
       console.error('Failed to create post:', error);
       return;
     }
+    if (!data) {
+      console.error('No data returned');
+      return;
+    }
     setBody('');
-    onCreated?.({ ...data, reactions: {}, myReaction: null });
+    onCreated?.({ ...data.data, reactions: {}, myReaction: null });
   };
 
   return (
