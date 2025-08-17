@@ -217,19 +217,42 @@ export interface components {
         Error: {
             code: string;
             message: string;
-            errors?: Record<string, never> | null;
+            details?: Record<string, never> | null;
+        };
+        Envelope_User: {
+            data: components["schemas"]["User"];
+            meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
+        };
+        Envelope_Thread: {
+            data: components["schemas"]["Thread"];
+            meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
+        };
+        Envelope_Post: {
+            data: components["schemas"]["Post"];
+            meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
+        };
+        Envelope_Reaction: {
+            data: components["schemas"]["Reaction"];
+            meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
         };
         Paginated_Thread: {
             data: components["schemas"]["Thread"][];
             meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
         };
         Paginated_Post: {
             data: components["schemas"]["Post"][];
             meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
         };
         Paginated_Reaction: {
             data: components["schemas"]["Reaction"][];
             meta: Record<string, never>;
+            error: components["schemas"]["Error"] | null;
         };
     };
     responses: never;
@@ -254,7 +277,6 @@ export interface operations {
                     /** Format: email */
                     email: string;
                     password: string;
-                    password_confirmation: string;
                 };
             };
         };
@@ -265,7 +287,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["Envelope_User"];
                 };
             };
             /** @description validation */
@@ -305,6 +327,15 @@ export interface operations {
             };
             /** @description unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description too many requests */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -356,7 +387,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["Envelope_User"];
                 };
             };
             /** @description unauthorized */
@@ -372,7 +403,9 @@ export interface operations {
     };
     listThreads: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -386,15 +419,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Paginated_Thread"];
-                };
-            };
-            /** @description bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
                 };
             };
         };
@@ -420,7 +444,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Thread"];
+                    "application/json": components["schemas"]["Envelope_Thread"];
                 };
             };
             /** @description unauthorized */
@@ -460,7 +484,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Thread"];
+                    "application/json": components["schemas"]["Envelope_Thread"];
                 };
             };
             /** @description not found */
@@ -535,7 +559,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Thread"];
+                    "application/json": components["schemas"]["Envelope_Thread"];
                 };
             };
             /** @description unauthorized */
@@ -569,7 +593,9 @@ export interface operations {
     };
     listPosts: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+            };
             header?: never;
             path: {
                 id: number;
@@ -621,7 +647,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Post"];
+                    "application/json": components["schemas"]["Envelope_Post"];
                 };
             };
             /** @description unauthorized */
@@ -667,7 +693,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Post"];
+                    "application/json": components["schemas"]["Envelope_Post"];
                 };
             };
             /** @description unauthorized */
@@ -791,7 +817,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Reaction"];
+                    "application/json": components["schemas"]["Envelope_Reaction"];
                 };
             };
             /** @description unauthorized */
