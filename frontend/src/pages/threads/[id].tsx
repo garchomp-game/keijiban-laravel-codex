@@ -28,9 +28,9 @@ export default function ThreadPage() {
       api.GET('/user').catch(() => null),
     ])
       .then(([threadRes, postsRes, userRes]) => {
-        if (threadRes.data) setThread(threadRes.data);
+        if (threadRes.data?.data) setThread(threadRes.data.data);
         if (postsRes.data?.data) setPosts(postsRes.data.data);
-        if (userRes?.data) setCurrentUser(userRes.data);
+        if (userRes?.data?.data) setCurrentUser(userRes.data.data);
         setLoading(false);
       })
       .catch(() => {

@@ -78,11 +78,51 @@ components:
       properties:
         code: { type: string }
         message: { type: string }
-        errors:
+        details:
           oneOf:
             - type: object
             - type: 'null'
       required: [code, message]
+    Envelope_User:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/User' }
+        meta: { type: object }
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
+    Envelope_Thread:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/Thread' }
+        meta: { type: object }
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
+    Envelope_Post:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/Post' }
+        meta: { type: object }
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
+    Envelope_Reaction:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/Reaction' }
+        meta: { type: object }
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
     Paginated_Thread:
       type: object
       properties:
@@ -91,7 +131,11 @@ components:
           items:
             $ref: '#/components/schemas/Thread'
         meta: { type: object }
-      required: [data, meta]
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
     Paginated_Post:
       type: object
       properties:
@@ -100,7 +144,11 @@ components:
           items:
             $ref: '#/components/schemas/Post'
         meta: { type: object }
-      required: [data, meta]
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
     Paginated_Reaction:
       type: object
       properties:
@@ -109,20 +157,35 @@ components:
           items:
             $ref: '#/components/schemas/Reaction'
         meta: { type: object }
-      required: [data, meta]
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/Error'
+            - type: 'null'
+      required: [data, meta, error]
 paths:
   /auth/register:
     post:
       operationId: authRegister
       security: []
       summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Envelope_User'
         '422':
           description: validation
           content:
@@ -134,10 +197,26 @@ paths:
       operationId: authLogin
       security: []
       summary: Login (sets cookie)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
       responses:
         '204': { description: ok }
         '401':
           description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: too many requests
           content:
             application/json:
               schema:
@@ -164,7 +243,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Envelope_User'
         '401':
           description: unauthorized
           content:
@@ -176,6 +255,10 @@ paths:
       security: []
       operationId: listThreads
       summary: List threads
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
       responses:
         '200':
           description: ok
@@ -183,22 +266,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Paginated_Thread'
-        '400':
-          description: bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     post:
       operationId: createThread
       summary: Create thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string, maxLength: 255 }
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thread'
+                $ref: '#/components/schemas/Envelope_Thread'
         '401':
           description: unauthorized
           content:
@@ -227,7 +313,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thread'
+                $ref: '#/components/schemas/Envelope_Thread'
         '404':
           description: not found
           content:
@@ -237,13 +323,22 @@ paths:
     patch:
       operationId: updateThread
       summary: Update (owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string, maxLength: 255 }
       responses:
         '200':
           description: ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thread'
+                $ref: '#/components/schemas/Envelope_Thread'
         '403':
           description: forbidden
           content:
@@ -289,6 +384,10 @@ paths:
       security: []
       operationId: listPosts
       summary: List posts
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
       responses:
         '200':
           description: ok
@@ -305,13 +404,22 @@ paths:
     post:
       operationId: createPost
       summary: Create post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/Envelope_Post'
         '401':
           description: unauthorized
           content:
@@ -333,13 +441,22 @@ paths:
     put:
       operationId: updatePost
       summary: Update post (owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
       responses:
         '200':
           description: ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/Envelope_Post'
         '403':
           description: forbidden
           content:
@@ -401,13 +518,22 @@ paths:
     post:
       operationId: createReaction
       summary: Create reaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string }
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Reaction'
+                $ref: '#/components/schemas/Envelope_Reaction'
         '401':
           description: unauthorized
           content:
