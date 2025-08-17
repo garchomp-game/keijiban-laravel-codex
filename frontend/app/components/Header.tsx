@@ -1,6 +1,6 @@
-'use client';
-import { useRouter } from 'next/navigation';
-import { logout } from '../../lib/api';
+"use client";
+import { useRouter } from "next/navigation";
+import { logout } from "../../lib/api";
 
 export default function Header() {
   const router = useRouter();
@@ -15,8 +15,13 @@ export default function Header() {
   };
 
   return (
-    <header style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
-      <button onClick={handleLogout}>Logout</button>
+    <header className="flex justify-end border-b p-4">
+      <button
+        onClick={handleLogout}
+        className="text-sm text-gray-600 hover:text-gray-900"
+      >
+        Logout
+      </button>
     </header>
   );
 }
