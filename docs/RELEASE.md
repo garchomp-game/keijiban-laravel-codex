@@ -2,23 +2,19 @@
 
 ## Commands
 
-Run the following commands to verify the application before releasing.
+Run these commands to verify the application before releasing.
 
 ### Backend (`backend-laravel`)
 
-```bash
-sail up -d
-php artisan test
-npm test
-npm run build
-```
+1. Start containers: `sail up -d`
+2. Run backend tests: `php artisan test`
+3. Run JavaScript tests: `npm test`
+4. Build assets: `npm run build`
 
 ### Frontend (`frontend`)
 
-```bash
-npm test
-npm run build
-```
+1. Run tests: `npm test`
+2. Build assets: `npm run build`
 
 ## Pre-release Checklist
 
